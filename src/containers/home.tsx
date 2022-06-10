@@ -14,10 +14,26 @@ const HomeContainer = () => {
           <DiscordFill color="#fff" size="48" />
         </div>
       </div>
-      <div></div>
-      <div></div>
+      <div className="hero">
+        <Image
+          alt="hero gif"
+          src="/blockapelads.gif"
+          height={300}
+          width={300}
+          className="hero-gif"
+        />
+        <h1 id="hero-text">Block Ape Lads</h1>
+      </div>
+      <div className="mint-section">
+        <button className="connect-btn">Connect Wallet</button>
+      </div>
       <div>
         <Image
+          className="smokescreen"
+          onDragStart={(e) => {
+            e.preventDefault();
+            return false;
+          }}
           alt="smoke screen"
           src="/smoke.png"
           layout="fill"
