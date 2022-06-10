@@ -1,0 +1,30 @@
+$bg-color: #080F5B;
+
+.container {
+  background-color: $bg-color;
+  min-height: 100vh;
+  min-width: 100vw;
+  padding-top: 40px;
+}
+
+.navbar {
+  max-width: 1280px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.icon-box {
+  width: 120px;
+  justify-content: space-between;
+}
