@@ -1,0 +1,80 @@
+$secondary: #080F5B;
+$primary: #15db95;
+
+.container {
+  background-color: $secondary;
+  min-height: 100vh;
+  min-width: 100vw;
+  padding-top: 40px;
+}
+
+.smokescreen {
+  z-index: 0;
+}
+
+.navbar {
+  max-width: 1280px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.icon-box {
+  width: 120px;
+  justify-content: space-between;
+}
+
+.hero {
+  @extend .flex-col;
+  margin: auto;
+  max-width: 1280px;
+  margin-top: 80px;
+  align-items: center;
+  z-index: 2;
+
+  #hero-text {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    z-index: 2;
+  }
+
+  .hero-gif {
+    border-radius: 50%;
+    z-index: 2;
+  }
+}
+
+.mint-section {
+  max-width: 1280px;
+  @extend .flex-col;
+  margin: auto;
+  align-items: center;
+  
+  * {
+    z-index: 2;
+  }
+
+  .connect-btn {
+    background-color: $primary;
+    
+    color: $secondary;
+    font-size: 24px;
+    font-weight: 700;
+    padding: 17.5px 91.5px;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+  }
+}
