@@ -38,6 +38,7 @@ const HomeContainer = () => {
               className="mint-input"
               type="number"
               onWheel={(e) => {
+                // @ts-ignore
                 e.target?.blur();
               }}
               placeholder="Number of Tokens. eg. 2"
