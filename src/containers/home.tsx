@@ -1,8 +1,11 @@
 import { TwitterFill } from "akar-icons";
 import Image from "next/image";
+import { useState } from "react";
 import DiscordFill from "../components/svgs/discord";
 
 const HomeContainer = () => {
+  const [connected, setConnected] = useState(false);
+  const [noOfTokens, setNoOfTokens] = useState<number>();
   return (
     <div className="container">
       <div className="navbar">
@@ -25,20 +28,55 @@ const HomeContainer = () => {
         <h1 id="hero-text">Block Ape Lads</h1>
       </div>
       <div className="mint-section">
-        <button className="connect-btn">Connect Wallet</button>
+        {!connected ? (
+          <button className="connect-btn" onClick={() => setConnected(true)}>
+            Connect Wallet
+          </button>
+        ) : (
+          <div className="mint-container">
+            <input
+              className="mint-input"
+              type="number"
+              onWheel={(e) => {
+                e.target?.blur();
+              }}
+              placeholder="Number of Tokens. eg. 2"
+              value={noOfTokens}
+              onChange={(e) => setNoOfTokens(parseInt(e.target.value))}
+            />
+            <button className="mint-btn" onClick={() => setConnected(true)}>
+              Mint for 0 ETH
+            </button>
+            <h3 className="user-address">
+              Connected to: <span>0xfE...D777</span>
+            </h3>
+          </div>
+        )}
       </div>
-      <div>
+      <div style={{ position: "fixed", bottom: 0, zIndex: 0 }}>
+        <div className="smokescreen">
+          <Image
+            onDragStart={(e) => {
+              e.preventDefault();
+              return false;
+            }}
+            alt="smoke screen"
+            src="/smoke.png"
+            layout="fill"
+            objectFit="contain"
+            objectPosition="bottom"
+          />
+        </div>
+      </div>
+      <div
+        className={`center simplr-${connected ? "connected" : "disconnected"}`}
+        style={{}}
+      >
         <Image
-          className="smokescreen"
-          onDragStart={(e) => {
-            e.preventDefault();
-            return false;
-          }}
-          alt="smoke screen"
-          src="/smoke.png"
-          layout="fill"
-          objectFit="contain"
-          objectPosition="bottom"
+          src="/simplr_brand.svg"
+          height={28}
+          width={212}
+          alt="simplr brand"
         />
       </div>
     </div>
