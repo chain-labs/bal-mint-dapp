@@ -52,7 +52,7 @@ const HomeContainer = () => {
       setDisabledMintButton(true);
       setButtonText(BUTTON_TEXT.MINT);
     }
-  }, [noOfTokens, details]);
+  }, [noOfTokens]);
 
   useEffect(() => {
     if (user) {
@@ -66,17 +66,16 @@ const HomeContainer = () => {
         const maxTokens = await contract.callStatic.maximumTokens();
         const maxPurchase = await contract.callStatic.maxPurchase();
         const tokenCounter = await contract.callStatic.totalSupply();
-        console.log({ maxTokens, maxPurchase, tokenCounter });
         setDetails({ maxTokens, maxPurchase, tokenCounter });
       };
       getDetails();
-      if (provider?.provider?.isMetamask) {
+      if (provider?.connection?.url === "metamask") {
         setInterval(() => {
           getDetails();
-        }, 5000);
+        }, 3000);
       }
     }
-  }, [contract]);
+  }, [contract, provider]);
 
   const mintHandler = async (e: any) => {
     e.preventDefault();
@@ -114,7 +113,11 @@ const HomeContainer = () => {
           className="hero-gif"
         />
         <h1 id="hero-text">Block Ape Lads</h1>
-        <h3 id="counter">{`Tokens Claimed: ${details.tokenCounter}/${details.maxTokens}`}</h3>
+        <h3 id="counter">{`Tokens Claimed: ${
+          details?.tokenCounter
+            ? `${details.tokenCounter}/${details.maxTokens}`
+            : "Fetching..."
+        }`}</h3>
       </div>
       <div className="mint-section">
         {!connected ? (
