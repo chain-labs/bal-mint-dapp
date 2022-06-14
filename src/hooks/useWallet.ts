@@ -2,7 +2,10 @@ import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 
 const useWallet = (): any => {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider>(
+    // @ts-ignore
+    ethers.getDefaultProvider("rinkeby")
+  );
   const [signer, setSigner] = useState<
     ethers.providers.JsonRpcSigner | undefined
   >();
@@ -22,7 +25,7 @@ const useWallet = (): any => {
   }, []);
 
   useEffect(() => {
-    if (provider) {
+    if (provider && provider?.provider?.isMetaMask) {
       provider.getNetwork().then((network) => {
         const networkId = network.chainId;
         console.log({ networkId });

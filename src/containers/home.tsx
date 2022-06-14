@@ -14,6 +14,8 @@ const condense = (text: string) => {
 const BUTTON_TEXT = {
   MINT: "Mint",
   EXCEEDS: "Token exceeds limit",
+  TRANSACTION: "Confirm Transaction",
+  MINTING: "Minting...",
 };
 
 const HomeContainer = () => {
@@ -24,8 +26,9 @@ const HomeContainer = () => {
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
   const [details, setDetails] = useState<{
     maxPurchase: number;
-    maxTokens?: BigNumber;
-  }>({ maxPurchase: 0, maxTokens: undefined });
+    maxTokens?: number;
+    tokenCounter?: number;
+  }>({ maxPurchase: 0, maxTokens: 0, tokenCounter: 0 });
 
   const [contract] = useContract(CONTRACT_ADDRESS, provider);
 
@@ -62,12 +65,34 @@ const HomeContainer = () => {
       const getDetails = async () => {
         const maxTokens = await contract.callStatic.maximumTokens();
         const maxPurchase = await contract.callStatic.maxPurchase();
-        console.log({ maxTokens, maxPurchase });
-        setDetails({ maxTokens, maxPurchase });
+        const tokenCounter = await contract.callStatic.totalSupply();
+        console.log({ maxTokens, maxPurchase, tokenCounter });
+        setDetails({ maxTokens, maxPurchase, tokenCounter });
       };
       getDetails();
+      if (provider?.provider?.isMetamask) {
+        setInterval(() => {
+          getDetails();
+        }, 5000);
+      }
     }
   }, [contract]);
+
+  const mintHandler = async (e: any) => {
+    e.preventDefault();
+    setButtonText(BUTTON_TEXT.TRANSACTION);
+    setDisabledMintButton(true);
+    const transaction = await contract
+      ?.connect(signer)
+      ?.buy(user, parseInt(noOfTokens));
+    setButtonText(BUTTON_TEXT.MINTING);
+    const event = transaction.wait().then((tx: any) => {
+      console.log({ tx });
+      setButtonText(BUTTON_TEXT.MINT);
+      setDisabledMintButton(false);
+      setNoOfTokens("");
+    });
+  };
 
   return (
     <div className="container">
@@ -89,6 +114,7 @@ const HomeContainer = () => {
           className="hero-gif"
         />
         <h1 id="hero-text">Block Ape Lads</h1>
+        <h3 id="counter">{`Tokens Claimed: ${details.tokenCounter}/${details.maxTokens}`}</h3>
       </div>
       <div className="mint-section">
         {!connected ? (
@@ -112,7 +138,7 @@ const HomeContainer = () => {
             />
             <button
               className="mint-btn"
-              onClick={() => setConnected(true)}
+              onClick={mintHandler}
               disabled={disabledMintButton}
             >
               {buttonText}
@@ -122,21 +148,6 @@ const HomeContainer = () => {
             </h3>
           </div>
         )}
-      </div>
-      <div style={{ position: "fixed", bottom: 0, zIndex: 0 }}>
-        <div className="smokescreen">
-          <Image
-            onDragStart={(e) => {
-              e.preventDefault();
-              return false;
-            }}
-            alt="smoke screen"
-            src="/smoke.png"
-            layout="fill"
-            objectFit="contain"
-            objectPosition="bottom"
-          />
-        </div>
       </div>
       <div
         className={`center simplr-${connected ? "connected" : "disconnected"}`}
