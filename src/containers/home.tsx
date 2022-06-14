@@ -86,7 +86,6 @@ const HomeContainer = () => {
       ?.buy(user, parseInt(noOfTokens));
     setButtonText(BUTTON_TEXT.MINTING);
     const event = transaction.wait().then((tx: any) => {
-      console.log({ tx });
       setButtonText(BUTTON_TEXT.MINT);
       setDisabledMintButton(false);
       setNoOfTokens("");

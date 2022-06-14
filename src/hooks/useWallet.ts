@@ -28,26 +28,16 @@ const useWallet = (): any => {
     if (provider && provider?.provider?.isMetaMask) {
       provider.getNetwork().then((network) => {
         const networkId = network.chainId;
-        console.log({ networkId });
-
         if (networkId !== 4) {
-          console.log({ networkId });
-
           // @ts-ignore
-          window.ethereum
-            .request({
-              method: "wallet_switchEthereumChain",
-              params: [
-                {
-                  chainId: "0x4",
-                },
-              ],
-            })
-            .then(() => {
-              provider.getNetwork().then((network) => {
-                console.log({ network });
-              });
-            });
+          window.ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [
+              {
+                chainId: "0x4",
+              },
+            ],
+          });
         }
       });
       const signer = provider?.getSigner();
@@ -57,8 +47,6 @@ const useWallet = (): any => {
 
   useEffect(() => {
     signer?.getAddress().then((user) => {
-      console.log({ user });
-
       setUser(user);
     });
   }, [signer]);
