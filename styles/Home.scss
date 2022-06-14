@@ -77,16 +77,19 @@ $primary: #15db95;
     z-index: 2;
   }
 
-  .connect-btn {
+  .btn {
     background-color: $primary;
-    
     color: $secondary;
     font-size: 24px;
     font-weight: 700;
-    padding: 17.5px 91.5px;
     border: none;
     border-radius: 24px;
     cursor: pointer;
+  }
+
+  .connect-btn {
+    @extend .btn;
+    padding: 17.5px 91.5px;
   }
 }
 
@@ -104,13 +107,22 @@ $primary: #15db95;
     margin-bottom: 24px;
     
     
-    &::placeholder {color: #dfdfdf}
+    &::placeholder {
+      color: #dfdfdf;
+      font-size: 18px;
+    }
   }
   
   .mint-btn {
-    @extend .connect-btn;
+    @extend .btn;
     z-index: 10;
     margin-bottom: 24px;
+    padding: 17.5px 0;
+    width: 356px;
+    &:disabled {
+      background: #626762;
+      cursor: not-allowed;
+    }
   }
 
   .user-address {

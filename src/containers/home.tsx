@@ -1,11 +1,74 @@
 import { TwitterFill } from "akar-icons";
+import { BigNumber } from "ethers";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DiscordFill from "../components/svgs/discord";
+import { CONTRACT_ADDRESS } from "../constants";
+import useContract from "../hooks/useContract";
+import useWallet from "../hooks/useWallet";
+
+const condense = (text: string) => {
+  return `${text.substring(0, 5)}...${text.substring(text.length - 5)}`;
+};
+
+const BUTTON_TEXT = {
+  MINT: "Mint",
+  EXCEEDS: "Token exceeds limit",
+};
 
 const HomeContainer = () => {
   const [connected, setConnected] = useState(false);
-  const [noOfTokens, setNoOfTokens] = useState<number>();
+  const [user, provider, signer, connectWallet] = useWallet();
+  const [noOfTokens, setNoOfTokens] = useState<string>("");
+  const [disabledMintButton, setDisabledMintButton] = useState(true);
+  const [buttonText, setButtonText] = useState("Mint for 0 ETH");
+  const [details, setDetails] = useState<{
+    maxPurchase: number;
+    maxTokens?: BigNumber;
+  }>({ maxPurchase: 0, maxTokens: undefined });
+
+  const [contract] = useContract(CONTRACT_ADDRESS, provider);
+
+  useEffect(() => {
+    if (noOfTokens) {
+      const tokensCount = parseInt(noOfTokens);
+
+      if (tokensCount > 0) {
+        if (tokensCount <= details?.maxPurchase) {
+          setDisabledMintButton(false);
+          setButtonText(BUTTON_TEXT.MINT);
+        } else {
+          setDisabledMintButton(true);
+          setButtonText(BUTTON_TEXT.EXCEEDS);
+        }
+      } else {
+        setDisabledMintButton(true);
+        setButtonText(BUTTON_TEXT.MINT);
+      }
+    } else {
+      setDisabledMintButton(true);
+      setButtonText(BUTTON_TEXT.MINT);
+    }
+  }, [noOfTokens, details]);
+
+  useEffect(() => {
+    if (user) {
+      setConnected(true);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (contract) {
+      const getDetails = async () => {
+        const maxTokens = await contract.callStatic.maximumTokens();
+        const maxPurchase = await contract.callStatic.maxPurchase();
+        console.log({ maxTokens, maxPurchase });
+        setDetails({ maxTokens, maxPurchase });
+      };
+      getDetails();
+    }
+  }, [contract]);
+
   return (
     <div className="container">
       <div className="navbar">
@@ -29,7 +92,7 @@ const HomeContainer = () => {
       </div>
       <div className="mint-section">
         {!connected ? (
-          <button className="connect-btn" onClick={() => setConnected(true)}>
+          <button className="connect-btn" onClick={() => connectWallet()}>
             Connect Wallet
           </button>
         ) : (
@@ -41,15 +104,21 @@ const HomeContainer = () => {
                 // @ts-ignore
                 e.target?.blur();
               }}
-              placeholder="Number of Tokens. eg. 2"
+              placeholder={`Number of Tokens. (Max ${details?.maxPurchase})`}
               value={noOfTokens}
-              onChange={(e) => setNoOfTokens(parseInt(e.target.value))}
+              onChange={(e) => setNoOfTokens(e.target.value)}
+              min={0}
+              max={details?.maxPurchase}
             />
-            <button className="mint-btn" onClick={() => setConnected(true)}>
-              Mint for 0 ETH
+            <button
+              className="mint-btn"
+              onClick={() => setConnected(true)}
+              disabled={disabledMintButton}
+            >
+              {buttonText}
             </button>
             <h3 className="user-address">
-              Connected to: <span>0xfE...D777</span>
+              Connected to: <span>{condense(user)}</span>
             </h3>
           </div>
         )}
@@ -71,7 +140,6 @@ const HomeContainer = () => {
       </div>
       <div
         className={`center simplr-${connected ? "connected" : "disconnected"}`}
-        style={{}}
       >
         <Image
           src="/simplr_brand.svg"
