@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const useWallet = (): any => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>(

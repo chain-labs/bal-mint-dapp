@@ -2,6 +2,7 @@ import { TwitterFill } from "akar-icons";
 import { BigNumber } from "ethers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
 import { CONTRACT_ADDRESS } from "../constants";
 import useContract from "../hooks/useContract";
@@ -81,15 +82,34 @@ const HomeContainer = () => {
     e.preventDefault();
     setButtonText(BUTTON_TEXT.TRANSACTION);
     setDisabledMintButton(true);
-    const transaction = await contract
-      ?.connect(signer)
-      ?.buy(user, parseInt(noOfTokens));
-    setButtonText(BUTTON_TEXT.MINTING);
-    const event = transaction.wait().then((tx: any) => {
+    try {
+      const transaction = await contract
+        ?.connect(signer)
+        ?.buy(user, parseInt(noOfTokens));
+      setButtonText(BUTTON_TEXT.MINTING);
+      const event = transaction
+        .wait()
+        .then((tx: any) => {
+          setButtonText(BUTTON_TEXT.MINT);
+          setDisabledMintButton(false);
+          setNoOfTokens("");
+          toast(
+            `🎉 Succesfully minted ${noOfTokens} Block Ape Lads!//${tx.transactionHash}`
+          );
+        })
+        .catch((err: any, tx: any) => {
+          setButtonText(BUTTON_TEXT.MINT);
+          setDisabledMintButton(false);
+          setNoOfTokens("");
+          toast(`❌ Something went wrong! Please Try Again`);
+        });
+    } catch (err) {
+      console.error(err);
       setButtonText(BUTTON_TEXT.MINT);
       setDisabledMintButton(false);
       setNoOfTokens("");
-    });
+      toast(`❌ Something went wrong! Please Try Again`);
+    }
   };
 
   return (
