@@ -174,12 +174,14 @@ const HomeContainer = () => {
       <div
         className={`center simplr-${connected ? "connected" : "disconnected"}`}
       >
-        <Image
-          src="/simplr_brand.svg"
-          height={28}
-          width={212}
-          alt="simplr brand"
-        />
+        <a href="https://simplrcollection.com" target="_blank" rel="noreferrer">
+          <Image
+            src="/simplr_brand.svg"
+            height={28}
+            width={212}
+            alt="simplr brand"
+          />
+        </a>
       </div>
     </div>
   );

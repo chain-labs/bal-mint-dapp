@@ -112,6 +112,7 @@ $primary: #15db95;
     color: #fff;
     text-align: center;
     margin-bottom: 24px;
+    width: 356px;
     
     
     &::placeholder {
@@ -125,7 +126,7 @@ $primary: #15db95;
     z-index: 10;
     margin-bottom: 24px;
     padding: 17.5px 0;
-    width: 356px;
+    width: 100%;
     &:disabled {
       background: #626762;
       cursor: not-allowed;
@@ -156,7 +157,7 @@ $primary: #15db95;
 
 .simplr-connected {
   padding-bottom: 80px;
-  margin-top: 120px;
+  margin-top: 40px;
 }
 
 .simplr-disconnected {
