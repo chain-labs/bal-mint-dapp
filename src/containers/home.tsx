@@ -135,7 +135,7 @@ const HomeContainer = () => {
         <h3 id="counter">{`Tokens Claimed: ${
           details?.tokenCounter
             ? `${details.tokenCounter}/${details.maxTokens}`
-            : "Fetching..."
+            : "Counting..."
         }`}</h3>
       </div>
       <div className="mint-section">
@@ -171,9 +171,7 @@ const HomeContainer = () => {
           </div>
         )}
       </div>
-      <div
-        className={`center simplr-${connected ? "connected" : "disconnected"}`}
-      >
+      <div className={`simplr`}>
         <a href="https://simplrcollection.com" target="_blank" rel="noreferrer">
           <Image
             src="/simplr_brand.svg"
