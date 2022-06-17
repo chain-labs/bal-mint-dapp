@@ -3,7 +3,7 @@ export const boolify = (x: string) => {
   else return false;
 };
 
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+export const CONTRACT_ADDRESS = `${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`;
 
 export const NETWORK: string = boolify(
   `${process.env.NEXT_PUBLIC_TEST_NETWORK}`
