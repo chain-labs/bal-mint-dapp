@@ -24,6 +24,7 @@ const HomeContainer = () => {
   const [user, provider, signer, connectWallet] = useWallet();
   const [noOfTokens, setNoOfTokens] = useState<string>("");
   const [disabledMintButton, setDisabledMintButton] = useState(true);
+  const [disabledMintInput, setDisabledMintInput] = useState(false);
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
   const [details, setDetails] = useState<{
     maxPurchase: number;
@@ -82,6 +83,7 @@ const HomeContainer = () => {
     e.preventDefault();
     setButtonText(BUTTON_TEXT.TRANSACTION);
     setDisabledMintButton(true);
+    setDisabledMintInput(true);
     try {
       const transaction = await contract
         ?.connect(signer)
@@ -92,6 +94,7 @@ const HomeContainer = () => {
         .then((tx: any) => {
           setButtonText(BUTTON_TEXT.MINT);
           setDisabledMintButton(false);
+          setDisabledMintInput(false);
           setNoOfTokens("");
           toast(
             `🎉 Succesfully minted ${noOfTokens} Block Ape Lads!//${tx.transactionHash}`
@@ -100,6 +103,7 @@ const HomeContainer = () => {
         .catch((err: any, tx: any) => {
           setButtonText(BUTTON_TEXT.MINT);
           setDisabledMintButton(false);
+          setDisabledMintInput(false);
           setNoOfTokens("");
           toast(`❌ Something went wrong! Please Try Again`);
         });
@@ -107,6 +111,7 @@ const HomeContainer = () => {
       console.error(err);
       setButtonText(BUTTON_TEXT.MINT);
       setDisabledMintButton(false);
+      setDisabledMintInput(false);
       setNoOfTokens("");
       toast(`❌ Something went wrong! Please Try Again`);
     }
@@ -157,6 +162,7 @@ const HomeContainer = () => {
               onChange={(e) => setNoOfTokens(e.target.value)}
               min={0}
               max={details?.maxPurchase}
+              disabled={disabledMintInput}
             />
             <button
               className="mint-btn"
