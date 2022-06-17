@@ -171,12 +171,12 @@ const HomeContainer = () => {
           </div>
         )}
       </div>
-      <div className={`simplr`}>
+      <div className="simplr">
         <a href="https://simplrcollection.com" target="_blank" rel="noreferrer">
           <Image
             src="/simplr_brand.svg"
-            height={28}
-            width={212}
+            height={41}
+            width={167}
             alt="simplr brand"
           />
         </a>
