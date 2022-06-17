@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { NETWORK } from "../constants";
 
 const useWallet = (): any => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>(
@@ -35,7 +36,7 @@ const useWallet = (): any => {
             method: "wallet_switchEthereumChain",
             params: [
               {
-                chainId: "0x4",
+                chainId: `0x${NETWORK}`,
               },
             ],
           });

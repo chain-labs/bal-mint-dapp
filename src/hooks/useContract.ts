@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
+import { CHAIN_ID, NETWORK } from "../constants";
 import contracts from "../contracts.json";
 
 const useContract = (
@@ -10,7 +11,8 @@ const useContract = (
 
   useEffect(() => {
     if (provider) {
-      const abi = contracts[4].rinkeby.contracts.CollectionA.abi;
+      // @ts-ignore
+      const abi = contracts?.[CHAIN_ID]?.[NETWORK]?.contracts?.CollectionA?.abi;
       const contract = new ethers.Contract(address, abi, provider);
       setContract(contract);
     }

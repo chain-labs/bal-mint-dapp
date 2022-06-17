@@ -1,1 +1,18 @@
-export const CONTRACT_ADDRESS = "0xfB57f6B97d84373698c67f9A320f1661ED1c10F0";
+export const boolify = (x: string) => {
+  if (x.toLowerCase() === "true") return true;
+  else return false;
+};
+
+export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+
+export const NETWORK: string = boolify(
+  `${process.env.NEXT_PUBLIC_TEST_NETWORK}`
+)
+  ? "rinkeby"
+  : "mainnet";
+
+export const CHAIN_ID: string = boolify(
+  `${process.env.NEXT_PUBLIC_TEST_NETWORK}`
+)
+  ? "4"
+  : "1";
