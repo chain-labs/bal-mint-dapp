@@ -17,6 +17,7 @@ const BUTTON_TEXT = {
   EXCEEDS: "Token exceeds limit",
   TRANSACTION: "Confirm Transaction",
   MINTING: "Minting...",
+  SOLD_OUT: "Sold Out",
 };
 
 const HomeContainer = () => {
@@ -69,12 +70,16 @@ const HomeContainer = () => {
         const maxPurchase = await contract.callStatic.maxPurchase();
         const tokenCounter = await contract.callStatic.totalSupply();
         setDetails({ maxTokens, maxPurchase, tokenCounter });
+        if (tokenCounter === maxTokens) {
+          setButtonText(BUTTON_TEXT.SOLD_OUT);
+          setDisabledMintButton(true);
+        }
       };
       getDetails();
       if (provider?.connection?.url === "metamask") {
         setInterval(() => {
           getDetails();
-        }, 3000);
+        }, 10000);
       }
     }
   }, [contract, provider]);
@@ -150,20 +155,25 @@ const HomeContainer = () => {
           </button>
         ) : (
           <div className="mint-container">
-            <input
-              className="mint-input"
-              type="number"
-              onWheel={(e) => {
-                // @ts-ignore
-                e.target?.blur();
-              }}
-              placeholder={`Number of Tokens. (Max ${details?.maxPurchase})`}
-              value={noOfTokens}
-              onChange={(e) => setNoOfTokens(e.target.value)}
-              min={0}
-              max={details?.maxPurchase}
-              disabled={disabledMintInput}
-            />
+            {
+              // @ts-ignore
+              details?.tokenCounter < details?.maxTokens ? (
+                <input
+                  className="mint-input"
+                  type="number"
+                  onWheel={(e) => {
+                    // @ts-ignore
+                    e.target?.blur();
+                  }}
+                  placeholder={`Number of Tokens. (Max ${details?.maxPurchase})`}
+                  value={noOfTokens}
+                  onChange={(e) => setNoOfTokens(e.target.value)}
+                  min={0}
+                  max={details?.maxPurchase}
+                  disabled={disabledMintInput}
+                />
+              ) : null
+            }
             <button
               className="mint-btn"
               onClick={mintHandler}
