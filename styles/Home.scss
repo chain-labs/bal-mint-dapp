@@ -6,20 +6,16 @@ $primary: #15db95;
   min-height: 100vh;
   min-width: 100vw;
   padding-top: 40px;
+  position: relative;
   
   * {
     z-index: 5;
   }
-}
 
-.smokescreen {
-  z-index: 0;
-  position: relative;
-  height: 100vh;
-  width: 100vw;
-
-  * {
-    z-index: 0;
+  .simplr {
+    position: absolute;
+    bottom: 64px;
+    right: 80px;
   }
 }
 
@@ -49,7 +45,7 @@ $primary: #15db95;
   @extend .flex-col;
   margin: auto;
   max-width: 1280px;
-  margin-top: 80px;
+  margin-top: 40px;
   align-items: center;
   z-index: 2;
 
@@ -59,7 +55,14 @@ $primary: #15db95;
     font-weight: 800;
     text-align: center;
     z-index: 2;
+    margin: 24px 0 8px 0;
   }
+
+  #counter {
+    color: #EB48EB;
+    margin: 0 0 24px 0;
+
+}
 
   .hero-gif {
     border-radius: 50%;
@@ -77,16 +80,19 @@ $primary: #15db95;
     z-index: 2;
   }
 
-  .connect-btn {
+  .btn {
     background-color: $primary;
-    
     color: $secondary;
     font-size: 24px;
     font-weight: 700;
-    padding: 17.5px 91.5px;
     border: none;
     border-radius: 24px;
     cursor: pointer;
+  }
+
+  .connect-btn {
+    @extend .btn;
+    padding: 17.5px 91.5px;
   }
 }
 
@@ -102,15 +108,25 @@ $primary: #15db95;
     color: #fff;
     text-align: center;
     margin-bottom: 24px;
+    width: 356px;
     
     
-    &::placeholder {color: #dfdfdf}
+    &::placeholder {
+      color: #dfdfdf;
+      font-size: 18px;
+    }
   }
   
   .mint-btn {
-    @extend .connect-btn;
+    @extend .btn;
     z-index: 10;
     margin-bottom: 24px;
+    padding: 17.5px 0;
+    width: 100%;
+    &:disabled {
+      background: #626762;
+      cursor: not-allowed;
+    }
   }
 
   .user-address {
@@ -129,17 +145,6 @@ $primary: #15db95;
   }
 }
 
-.center {
-  max-width: 1280px;
-  margin: auto;
-  text-align: center;
-}
 
-.simplr-connected {
-  padding-bottom: 80px;
-  margin-top: 120px;
-}
 
-.simplr-disconnected {
-  margin-top: 40px;
-}
+
