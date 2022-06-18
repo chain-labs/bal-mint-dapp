@@ -126,11 +126,25 @@ const HomeContainer = () => {
     <div className="container">
       <div className="navbar">
         <div>
-          <Image src="/logo.svg" alt="logo" width={328} height={50} />
+          <a href="https://blockapelads.com" rel="noreferrer">
+            <Image src="/logo.svg" alt="logo" width={328} height={50} />
+          </a>
         </div>
         <div className="flex-row icon-box">
-          <TwitterFill color="#fff" size={48} />
-          <DiscordFill color="#fff" size="48" />
+          <a
+            href="https://twitter.com/Blockapelads"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <TwitterFill color="#fff" size={48} />
+          </a>
+          <a
+            href="https://discord.gg/j7FYsDqkr3"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <DiscordFill color="#fff" size="48" />
+          </a>
         </div>
       </div>
       <div className="hero">
