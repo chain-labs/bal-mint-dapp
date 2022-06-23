@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS } from "../constants";
+import { CONTRACT_ADDRESS, SALE_TYPE } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
 
@@ -29,9 +29,14 @@ const HomeContainer = () => {
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
   const [details, setDetails] = useState<{
     maxPurchase: number;
-    maxTokens?: number;
-    tokenCounter?: number;
-  }>({ maxPurchase: 0, maxTokens: 0, tokenCounter: 0 });
+    maxTokens: number;
+    price?: BigNumber;
+  }>({
+    maxPurchase: 0,
+    maxTokens: 0,
+  });
+
+  const [tokenCount, setTokenCount] = useState(-1);
 
   const [contract] = useContract(CONTRACT_ADDRESS, provider);
 
@@ -65,20 +70,44 @@ const HomeContainer = () => {
 
   useEffect(() => {
     if (contract) {
-      const getDetails = async () => {
-        const maxTokens = await contract.callStatic.maximumTokens();
-        const maxPurchase = await contract.callStatic.maxPurchase();
-        const tokenCounter = await contract.callStatic.totalSupply();
-        setDetails({ maxTokens, maxPurchase, tokenCounter });
-        if (tokenCounter === maxTokens) {
-          setButtonText(BUTTON_TEXT.SOLD_OUT);
-          setDisabledMintButton(true);
+      const getPolledDetails = async () => {
+        try {
+          const tokenCounter = await contract.callStatic.totalSupply();
+
+          setTokenCount(tokenCounter);
+          if (tokenCounter === details?.maxTokens) {
+            setButtonText(BUTTON_TEXT.SOLD_OUT);
+            setDisabledMintButton(true);
+          }
+        } catch (err) {
+          console.log({ err });
         }
       };
+
+      const getDetails = async () => {
+        try {
+          const code = await provider.getCode(CONTRACT_ADDRESS);
+          console.log({ code });
+
+          const maxTokens = await contract.callStatic.maximumTokens();
+          const maxPurchase = await contract.callStatic.maxPurchase();
+          const price = await contract.callStatic[
+            SALE_TYPE === "presale" ? "presalePrice()" : "price()"
+          ]();
+          console.log({ price, maxTokens, maxPurchase });
+
+          setDetails({ ...details, maxTokens, maxPurchase, price });
+        } catch (err) {
+          console.log({ err });
+        }
+      };
+      console.log({ contract });
+
+      getPolledDetails();
       getDetails();
       if (provider?.connection?.url === "metamask") {
         setInterval(() => {
-          getDetails();
+          getPolledDetails();
         }, 10000);
       }
     }
@@ -157,8 +186,8 @@ const HomeContainer = () => {
         />
         <h1 id="hero-text">Block Ape Lads</h1>
         <h3 id="counter">{`Tokens Claimed: ${
-          details?.tokenCounter
-            ? `${details.tokenCounter}/${details.maxTokens}`
+          tokenCount >= 0 && details?.maxTokens
+            ? `${tokenCount}/${details.maxTokens}`
             : "Counting..."
         }`}</h3>
       </div>
@@ -171,7 +200,7 @@ const HomeContainer = () => {
           <div className="mint-container">
             {
               // @ts-ignore
-              details?.tokenCounter < details?.maxTokens ? (
+              tokenCount < details?.maxTokens ? (
                 <input
                   className="mint-input"
                   type="number"
