@@ -71,6 +71,7 @@ const HomeContainer = () => {
   useEffect(() => {
     if (contract) {
       const getPolledDetails = async () => {
+        // ERRORS in this try block
         try {
           const tokenCounter = await contract.callStatic.totalSupply();
 
@@ -85,6 +86,7 @@ const HomeContainer = () => {
       };
 
       const getDetails = async () => {
+        // ERRORS in this try block
         try {
           const code = await provider.getCode(CONTRACT_ADDRESS);
           console.log({ code });
