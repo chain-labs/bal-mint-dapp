@@ -76,6 +76,7 @@ const HomeContainer = () => {
       if (!isWhitelisted) {
         setButtonText(BUTTON_TEXT.PRESALE_NOT_ALLOWED);
         setDisabledMintButton(true);
+        setDisabledMintInput(true);
       } else {
         resetMint();
       }
