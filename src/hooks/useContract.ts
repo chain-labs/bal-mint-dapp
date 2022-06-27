@@ -11,12 +11,8 @@ const useContract = (
 
   useEffect(() => {
     if (provider) {
-      console.log({ CHAIN_ID, NETWORK, provider });
-
       // @ts-ignore
       const abi = contracts?.[CHAIN_ID]?.[NETWORK]?.contracts?.CollectionA?.abi;
-      console.log({ abi });
-
       const contract = new ethers.Contract(address, abi, provider);
       setContract(contract);
     }

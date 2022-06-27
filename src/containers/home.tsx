@@ -8,16 +8,20 @@ import { CONTRACT_ADDRESS, SALE_TYPE } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
 
+import axios from "axios";
+import WhitelistManagement from "../WhitelistManager";
+
 const condense = (text: string) => {
   return `${text.substring(0, 5)}...${text.substring(text.length - 5)}`;
 };
 
 const BUTTON_TEXT = {
-  MINT: "Mint",
+  MINT: "Mint for Free",
   EXCEEDS: "Token exceeds limit",
   TRANSACTION: "Confirm Transaction",
   MINTING: "Minting...",
   SOLD_OUT: "Sold Out",
+  PRESALE_NOT_ALLOWED: "Not Allowed to Buy",
 };
 
 const HomeContainer = () => {
@@ -27,6 +31,8 @@ const HomeContainer = () => {
   const [disabledMintButton, setDisabledMintButton] = useState(true);
   const [disabledMintInput, setDisabledMintInput] = useState(false);
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
+  const [whitelistManager, setWhitelistManager] =
+    useState<WhitelistManagement>();
   const [details, setDetails] = useState<{
     maxPurchase: number;
     maxTokens: number;
@@ -36,9 +42,64 @@ const HomeContainer = () => {
     maxTokens: 0,
   });
 
-  const [tokenCount, setTokenCount] = useState(-1);
+  const [tokenCount, setTokenCount] = useState<number>(-1);
 
   const [contract] = useContract(CONTRACT_ADDRESS, provider);
+
+  const checkWhitelisted = async () => {
+    if (!whitelistManager) {
+      const whitelistCid = await contract?.callStatic.whitelistCid();
+      const whitelist = (
+        await axios.get(`https://simplr.mypinata.cloud/ipfs/${whitelistCid}`)
+      )?.data?.addresses;
+      const whitelistManager = new WhitelistManagement(whitelist);
+      setWhitelistManager(whitelistManager);
+      const proof = whitelistManager.getProof(user);
+      const isWhitelisted = await contract.callStatic.isWhitelisted(
+        proof,
+        user
+      );
+      if (!isWhitelisted) {
+        setButtonText(BUTTON_TEXT.PRESALE_NOT_ALLOWED);
+        setDisabledMintButton(true);
+        setDisabledMintInput(true);
+      } else {
+        resetMint();
+      }
+      return isWhitelisted;
+    } else {
+      const proof = whitelistManager.getProof(user);
+      const isWhitelisted = await contract.callStatic.isWhitelisted(
+        proof,
+        user
+      );
+      if (!isWhitelisted) {
+        setButtonText(BUTTON_TEXT.PRESALE_NOT_ALLOWED);
+        setDisabledMintButton(true);
+      } else {
+        resetMint();
+      }
+      return isWhitelisted;
+    }
+  };
+
+  const resetMint = () => {
+    setButtonText(BUTTON_TEXT.MINT);
+    setDisabledMintInput(false);
+    setNoOfTokens("");
+  };
+
+  const presaleBuy = async (quantity: number) => {
+    if (await checkWhitelisted()) {
+      const proof = whitelistManager.getProof(user);
+      const transaction = await contract
+        .connect(signer)
+        ?.presaleBuy(proof, user, quantity);
+      return { tx: transaction, error: false };
+    } else {
+      return { tx: {}, error: true };
+    }
+  };
 
   useEffect(() => {
     if (noOfTokens) {
@@ -65,16 +126,21 @@ const HomeContainer = () => {
   useEffect(() => {
     if (user) {
       setConnected(true);
+      checkWhitelisted();
     }
   }, [user]);
 
   useEffect(() => {
+    if (user && contract) {
+      checkWhitelisted();
+    }
+  }, [user, contract]);
+
+  useEffect(() => {
     if (contract) {
       const getPolledDetails = async () => {
-        // ERRORS in this try block
         try {
           const tokenCounter = await contract.callStatic.totalSupply();
-
           setTokenCount(tokenCounter);
           if (tokenCounter === details?.maxTokens) {
             setButtonText(BUTTON_TEXT.SOLD_OUT);
@@ -86,28 +152,33 @@ const HomeContainer = () => {
       };
 
       const getDetails = async () => {
-        // ERRORS in this try block
         try {
-          const code = await provider.getCode(CONTRACT_ADDRESS);
-          console.log({ code });
-
           const maxTokens = await contract.callStatic.maximumTokens();
           const maxPurchase = await contract.callStatic.maxPurchase();
+          const presaleMaxHolding =
+            await contract.callStatic.presaleMaxHolding();
+          const detailsObj = {
+            ...details,
+            maxTokens,
+            maxPurchase,
+            price: null,
+          };
+          if (SALE_TYPE === "presale") {
+            detailsObj.maxPurchase =
+              presaleMaxHolding < maxPurchase ? presaleMaxHolding : maxPurchase;
+          }
           const price = await contract.callStatic[
             SALE_TYPE === "presale" ? "presalePrice()" : "price()"
           ]();
-          console.log({ price, maxTokens, maxPurchase });
-
-          setDetails({ ...details, maxTokens, maxPurchase, price });
+          setDetails({ ...detailsObj, price });
         } catch (err) {
           console.log({ err });
         }
       };
-      console.log({ contract });
 
-      getPolledDetails();
-      getDetails();
       if (provider?.connection?.url === "metamask") {
+        getDetails();
+        getPolledDetails();
         setInterval(() => {
           getPolledDetails();
         }, 10000);
@@ -121,35 +192,42 @@ const HomeContainer = () => {
     setDisabledMintButton(true);
     setDisabledMintInput(true);
     try {
-      const transaction = await contract
-        ?.connect(signer)
-        ?.buy(user, parseInt(noOfTokens));
-      setButtonText(BUTTON_TEXT.MINTING);
+      let transaction;
+
+      if (SALE_TYPE === "presale") {
+        const { tx, error } = await presaleBuy(parseInt(noOfTokens));
+        if (error) {
+          toast(`Whoops! Looks like you are not whitelisted.`);
+          resetMint();
+          return;
+        } else {
+          transaction = tx;
+          setButtonText(BUTTON_TEXT.MINTING);
+        }
+      } else {
+        transaction = await contract
+          ?.connect(signer)
+          ?.buy(user, parseInt(noOfTokens));
+        setButtonText(BUTTON_TEXT.MINTING);
+      }
       const event = transaction
         .wait()
         .then((tx: any) => {
-          setButtonText(BUTTON_TEXT.MINT);
-          setDisabledMintButton(false);
-          setDisabledMintInput(false);
-          setNoOfTokens("");
+          resetMint();
           toast(
             `🎉 Succesfully minted ${noOfTokens} Block Ape Lads!//${tx.transactionHash}`
           );
         })
         .catch((err: any, tx: any) => {
-          setButtonText(BUTTON_TEXT.MINT);
-          setDisabledMintButton(false);
-          setDisabledMintInput(false);
-          setNoOfTokens("");
+          resetMint();
           toast(`❌ Something went wrong! Please Try Again`);
         });
     } catch (err) {
       console.error(err);
-      setButtonText(BUTTON_TEXT.MINT);
-      setDisabledMintButton(false);
-      setDisabledMintInput(false);
-      setNoOfTokens("");
-      toast(`❌ Something went wrong! Please Try Again`);
+      resetMint();
+      if (err.message.includes("PR:012")) {
+        toast(`You cannot own more than ${details.maxPurchase} tokens`);
+      } else toast(`❌ Something went wrong! Please Try Again`);
     }
   };
 
@@ -187,11 +265,13 @@ const HomeContainer = () => {
           className="hero-gif"
         />
         <h1 id="hero-text">Block Ape Lads</h1>
-        <h3 id="counter">{`Tokens Claimed: ${
-          tokenCount >= 0 && details?.maxTokens
-            ? `${tokenCount}/${details.maxTokens}`
-            : "Counting..."
-        }`}</h3>
+        {connected ? (
+          <h3 id="counter">{`Tokens Claimed: ${
+            tokenCount >= 0 && details?.maxTokens
+              ? `${tokenCount}/${details.maxTokens}`
+              : "Counting..."
+          }`}</h3>
+        ) : null}
       </div>
       <div className="mint-section">
         {!connected ? (
@@ -202,7 +282,7 @@ const HomeContainer = () => {
           <div className="mint-container">
             {
               // @ts-ignore
-              tokenCount < details?.maxTokens ? (
+              parseInt(tokenCount) < details?.maxTokens ? (
                 <input
                   className="mint-input"
                   type="number"
