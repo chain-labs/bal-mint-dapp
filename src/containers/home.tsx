@@ -1,5 +1,5 @@
 import { TwitterFill } from "akar-icons";
-import { BigNumber } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -16,7 +16,8 @@ const condense = (text: string) => {
 };
 
 const BUTTON_TEXT = {
-  MINT: "Mint for Free",
+  MINT_PRESALE: "Mint for Free",
+  MINT_SALE: "Mint for ",
   EXCEEDS: "Token exceeds limit",
   TRANSACTION: "Confirm Transaction",
   MINTING: "Minting...",
@@ -31,6 +32,7 @@ const HomeContainer = () => {
   const [disabledMintButton, setDisabledMintButton] = useState(true);
   const [disabledMintInput, setDisabledMintInput] = useState(false);
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
+  const [mintText, setMintText] = useState("");
   const [whitelistManager, setWhitelistManager] =
     useState<WhitelistManagement>();
   const [details, setDetails] = useState<{
@@ -84,8 +86,17 @@ const HomeContainer = () => {
     }
   };
 
+  useEffect(() => {
+    if (
+      mintText.includes(BUTTON_TEXT.MINT_PRESALE) ||
+      mintText.includes(BUTTON_TEXT.MINT_SALE)
+    ) {
+      setButtonText(mintText);
+    }
+  }, [mintText]);
+
   const resetMint = () => {
-    setButtonText(BUTTON_TEXT.MINT);
+    setButtonText(mintText);
     setDisabledMintInput(false);
     setNoOfTokens("");
   };
@@ -109,30 +120,32 @@ const HomeContainer = () => {
       if (tokensCount > 0) {
         if (tokensCount <= details?.maxPurchase) {
           setDisabledMintButton(false);
-          setButtonText(BUTTON_TEXT.MINT);
+          setButtonText(mintText);
         } else {
           setDisabledMintButton(true);
           setButtonText(BUTTON_TEXT.EXCEEDS);
         }
       } else {
         setDisabledMintButton(true);
-        setButtonText(BUTTON_TEXT.MINT);
+        setButtonText(mintText);
       }
     } else {
       setDisabledMintButton(true);
-      setButtonText(BUTTON_TEXT.MINT);
+      setButtonText(mintText);
     }
   }, [noOfTokens]);
 
   useEffect(() => {
     if (user) {
       setConnected(true);
+    }
+    if (user && SALE_TYPE === "presale") {
       checkWhitelisted();
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && contract) {
+    if (user && contract && SALE_TYPE === "presale") {
       checkWhitelisted();
     }
   }, [user, contract]);
@@ -171,6 +184,13 @@ const HomeContainer = () => {
           const price = await contract.callStatic[
             SALE_TYPE === "presale" ? "presalePrice()" : "price()"
           ]();
+          setMintText(
+            SALE_TYPE === "presale"
+              ? BUTTON_TEXT.MINT_PRESALE
+              : `${BUTTON_TEXT.MINT_SALE} ${ethers.utils.formatUnits(
+                  price
+                )} ETH`
+          );
           setDetails({ ...detailsObj, price });
         } catch (err) {
           console.log({ err });
@@ -208,7 +228,9 @@ const HomeContainer = () => {
       } else {
         transaction = await contract
           ?.connect(signer)
-          ?.buy(user, parseInt(noOfTokens));
+          ?.buy(user, parseInt(noOfTokens), {
+            value: BigNumber.from(noOfTokens).mul(details.price),
+          });
         setButtonText(BUTTON_TEXT.MINTING);
       }
       const event = transaction
