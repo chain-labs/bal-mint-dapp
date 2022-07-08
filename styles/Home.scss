@@ -93,6 +93,7 @@ $primary: #15db95;
   .connect-btn {
     @extend .btn;
     padding: 17.5px 91.5px;
+    margin-top: 24px;
   }
 }
 
@@ -124,7 +125,7 @@ $primary: #15db95;
     padding: 17.5px 0;
     width: 100%;
     &:disabled {
-      background: #626762;
+      background: #C6C6C6;
       cursor: not-allowed;
     }
   }

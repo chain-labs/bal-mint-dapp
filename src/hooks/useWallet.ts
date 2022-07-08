@@ -4,10 +4,7 @@ import toast from "react-hot-toast";
 import { NETWORK } from "../constants";
 
 const useWallet = (): any => {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider>(
-    // @ts-ignore
-    ethers.getDefaultProvider("rinkeby")
-  );
+  const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
   const [signer, setSigner] = useState<
     ethers.providers.JsonRpcSigner | undefined
   >();
