@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS, SALE_TYPE } from "../constants";
+import { CONTRACT_ADDRESS } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
 
@@ -39,9 +39,11 @@ const HomeContainer = () => {
     maxPurchase: number;
     maxTokens: number;
     price?: BigNumber;
+    presale?: boolean;
   }>({
     maxPurchase: 0,
     maxTokens: 0,
+    presale: false,
   });
 
   const [tokenCount, setTokenCount] = useState<number>(-1);
@@ -139,13 +141,13 @@ const HomeContainer = () => {
     if (user) {
       setConnected(true);
     }
-    if (user && SALE_TYPE === "presale") {
+    if (user && details.presale) {
       checkWhitelisted();
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && contract && SALE_TYPE === "presale") {
+    if (user && contract && details.presale) {
       checkWhitelisted();
     }
   }, [user, contract]);
@@ -171,21 +173,25 @@ const HomeContainer = () => {
           const maxPurchase = await contract.callStatic.maxPurchase();
           const presaleMaxHolding =
             await contract.callStatic.presaleMaxHolding();
+          const isPresaleActive = await contract.callStatic.isPresaleActive();
+          const isSaleActive = await contract.callStatic.isSaleActive();
+          const presale = isPresaleActive && !isSaleActive;
           const detailsObj = {
             ...details,
             maxTokens,
             maxPurchase,
             price: null,
+            presale,
           };
-          if (SALE_TYPE === "presale") {
+          if (presale) {
             detailsObj.maxPurchase =
               presaleMaxHolding < maxPurchase ? presaleMaxHolding : maxPurchase;
           }
           const price = await contract.callStatic[
-            SALE_TYPE === "presale" ? "presalePrice()" : "price()"
+            presale ? "presalePrice()" : "price()"
           ]();
           setMintText(
-            SALE_TYPE === "presale"
+            presale
               ? BUTTON_TEXT.MINT_PRESALE
               : `${BUTTON_TEXT.MINT_SALE} ${ethers.utils.formatUnits(
                   price
@@ -215,7 +221,7 @@ const HomeContainer = () => {
     try {
       let transaction;
 
-      if (SALE_TYPE === "presale") {
+      if (details.presale) {
         const { tx, error } = await presaleBuy(parseInt(noOfTokens));
         if (error) {
           toast(`Whoops! Looks like you are not whitelisted.`);
