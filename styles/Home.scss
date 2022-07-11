@@ -1,0 +1,151 @@
+$secondary: #080F5B;
+$primary: #15db95;
+
+.container {
+  background-color: $secondary;
+  min-height: 100vh;
+  min-width: 100vw;
+  padding-top: 40px;
+  position: relative;
+  
+  * {
+    z-index: 5;
+  }
+
+  .simplr {
+    position: absolute;
+    bottom: 64px;
+    right: 80px;
+  }
+}
+
+.navbar {
+  max-width: 1280px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+.flex-row {
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.icon-box {
+  width: 180px;
+  justify-content: space-between;
+}
+
+.hero {
+  @extend .flex-col;
+  margin: auto;
+  max-width: 1280px;
+  margin-top: 40px;
+  align-items: center;
+  z-index: 2;
+
+  #hero-text {
+    color: white;
+    font-size: 48px;
+    font-weight: 800;
+    text-align: center;
+    z-index: 2;
+    margin: 24px 0 8px 0;
+  }
+
+  #counter {
+    color: #EB48EB;
+    margin: 0 0 24px 0;
+
+}
+
+  .hero-gif {
+    border-radius: 50%;
+    z-index: 2;
+  }
+}
+
+.mint-section {
+  max-width: 1280px;
+  @extend .flex-col;
+  margin: auto;
+  align-items: center;
+  
+  * {
+    z-index: 2;
+  }
+
+  .btn {
+    background-color: $primary;
+    color: $secondary;
+    font-size: 24px;
+    font-weight: 700;
+    border: none;
+    border-radius: 24px;
+    cursor: pointer;
+  }
+
+  .connect-btn {
+    @extend .btn;
+    padding: 17.5px 91.5px;
+    margin-top: 24px;
+  }
+}
+
+.mint-container {
+  @extend .flex-col;
+  .mint-input {
+    background: transparent;
+    border: 1px solid #fff;
+    border-radius: 8px;
+    padding: 17.5px 48px;
+    font-size: 24px;
+    font-weight: 400;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 24px;
+    width: 356px;
+    
+    
+    &::placeholder {
+      color: #dfdfdf;
+      font-size: 18px;
+    }
+  }
+  
+  .mint-btn {
+    @extend .btn;
+    z-index: 10;
+    margin-bottom: 24px;
+    padding: 17.5px 0;
+    width: 100%;
+    &:disabled {
+      background: #C6C6C6;
+      cursor: not-allowed;
+    }
+  }
+
+  .user-address {
+    font-size: 20px;
+    color: #fff;
+    font-weight: 400;
+    line-height: 120%;
+    margin: 0;
+    text-align: center;
+    z-index: 3;
+
+    span {
+      color: $primary;
+      font-weight: 700;
+    }
+  }
+}
+
+
+
+
