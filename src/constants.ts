@@ -16,3 +16,11 @@ export const CHAIN_ID: string = boolify(
 )
   ? "4"
   : "1";
+
+export const getEtherscanUrl = () => {
+  if (NETWORK === "rinkeby") {
+    return `https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`;
+  } else {
+    return `https://etherscan.io/address/${CONTRACT_ADDRESS}`;
+  }
+};

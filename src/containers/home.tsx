@@ -1,12 +1,14 @@
+/* eslint-disable @next/next/no-img-element */
 import { TwitterFill } from "akar-icons";
 import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS } from "../constants";
+import { CONTRACT_ADDRESS, getEtherscanUrl } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
+import EtherscanIcon from "../../public/etherscan.svg";
 
 import axios from "axios";
 import WhitelistManagement from "../WhitelistManager";
@@ -276,6 +278,13 @@ const HomeContainer = () => {
           </a>
         </div>
         <div className="flex-row icon-box">
+          <a href={getEtherscanUrl()} rel="noreferrer" target="_blank">
+            <img
+              src="/etherscan.svg"
+              alt="etherscan"
+              style={{ height: "48px", width: "48px" }}
+            />
+          </a>
           <a
             href="https://twitter.com/Blockapelads"
             target="_blank"
