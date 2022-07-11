@@ -1,7 +1,6 @@
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { CHAIN_ID, NETWORK } from "../constants";
+import { CHAIN_ID } from "../constants";
 
 const useWallet = (): any => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider>();
@@ -24,22 +23,7 @@ const useWallet = (): any => {
   }, []);
 
   useEffect(() => {
-    console.log({ provider });
     if (provider && provider?.provider?.isMetaMask) {
-      provider.getNetwork().then((network) => {
-        const networkId = network.chainId;
-        if (networkId !== parseInt(CHAIN_ID)) {
-          // @ts-ignore
-          window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [
-              {
-                chainId: `0x${NETWORK}`,
-              },
-            ],
-          });
-        }
-      });
       const signer = provider?.getSigner();
       setSigner(signer);
     }
@@ -63,6 +47,7 @@ const useWallet = (): any => {
           window.ethereum,
           "any"
         );
+        await provider.send("eth_requestAccounts", []);
         provider.getNetwork().then(async (network) => {
           const networkId = network.chainId;
           if (networkId !== parseInt(CHAIN_ID)) {
@@ -75,14 +60,14 @@ const useWallet = (): any => {
                 },
               ],
             });
-
-            setProvider(
-              await new ethers.providers.Web3Provider(
-                // @ts-expect-error ethereum in window is not defined
-                window.ethereum,
-                "any"
-              )
+            provider = await new ethers.providers.Web3Provider(
+              // @ts-expect-error ethereum in window is not defined
+              window.ethereum,
+              "any"
             );
+            await provider.send("eth_requestAccounts", []);
+
+            setProvider(provider);
           }
         });
         // @ts-expect-error ethereum in window is not defined

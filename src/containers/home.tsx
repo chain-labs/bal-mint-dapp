@@ -12,7 +12,7 @@ import axios from "axios";
 import WhitelistManagement from "../WhitelistManager";
 
 const condense = (text: string) => {
-  return `${text.substring(0, 5)}...${text.substring(text.length - 5)}`;
+  return `${text?.substring(0, 5)}...${text?.substring(text.length - 5)}`;
 };
 
 const BUTTON_TEXT = {
@@ -27,6 +27,7 @@ const BUTTON_TEXT = {
 
 const HomeContainer = () => {
   const [connected, setConnected] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   const [user, provider, signer, connectWallet] = useWallet();
   const [noOfTokens, setNoOfTokens] = useState<string>("");
   const [disabledMintButton, setDisabledMintButton] = useState(true);
@@ -151,6 +152,12 @@ const HomeContainer = () => {
       checkWhitelisted();
     }
   }, [user, contract]);
+
+  useEffect(() => {
+    if (details.maxPurchase > 0) {
+      setLoaded(true);
+    }
+  }, [details]);
 
   useEffect(() => {
     if (contract) {
@@ -311,7 +318,7 @@ const HomeContainer = () => {
           <div className="mint-container">
             {
               // @ts-ignore
-              parseInt(tokenCount) < details?.maxTokens ? (
+              parseInt(tokenCount) < details?.maxTokens && loaded ? (
                 <input
                   className="mint-input"
                   type="number"
@@ -328,13 +335,15 @@ const HomeContainer = () => {
                 />
               ) : null
             }
-            <button
-              className="mint-btn"
-              onClick={mintHandler}
-              disabled={disabledMintButton}
-            >
-              {buttonText}
-            </button>
+            {loaded ? (
+              <button
+                className="mint-btn"
+                onClick={mintHandler}
+                disabled={disabledMintButton}
+              >
+                {buttonText}
+              </button>
+            ) : null}
             <h3 className="user-address">
               Connected to: <span>{condense(user)}</span>
             </h3>
