@@ -8,6 +8,10 @@ const Home: NextPage = () => {
     <React.Fragment>
       <Head>
         <title>Block Ape Lads | Mint Here</title>
+        <link
+          rel="shortcut icon"
+          href="https://blockapelads.com/wp-content/uploads/2022/02/cropped-BAL_logo_Cap_black-32x32.png"
+        />
       </Head>
       <HomeContainer />
     </React.Fragment>
