@@ -41,11 +41,14 @@ const HomeContainer = () => {
   const [details, setDetails] = useState<{
     maxPurchase: number;
     maxTokens: number;
-    price?: BigNumber;
-    presale?: boolean;
   }>({
     maxPurchase: 0,
     maxTokens: 0,
+  });
+  const [polledDetails, setPolledDetails] = useState<{
+    price?: BigNumber;
+    presale?: boolean;
+  }>({
     presale: false,
   });
 
@@ -61,7 +64,7 @@ const HomeContainer = () => {
       )?.data?.addresses;
       const whitelistManager = new WhitelistManagement(whitelist);
       setWhitelistManager(whitelistManager);
-      const proof = whitelistManager.getProof(user);
+      const proof = whitelistManager?.getProof(user);
       const isWhitelisted = await contract.callStatic.isWhitelisted(
         proof,
         user
@@ -70,22 +73,19 @@ const HomeContainer = () => {
         setButtonText(BUTTON_TEXT.PRESALE_NOT_ALLOWED);
         setDisabledMintButton(true);
         setDisabledMintInput(true);
-      } else {
-        resetMint();
       }
       return isWhitelisted;
     } else {
-      const proof = whitelistManager.getProof(user);
+      const proof = whitelistManager?.getProof(user);
       const isWhitelisted = await contract.callStatic.isWhitelisted(
         proof,
         user
       );
+
       if (!isWhitelisted) {
         setButtonText(BUTTON_TEXT.PRESALE_NOT_ALLOWED);
         setDisabledMintButton(true);
         setDisabledMintInput(true);
-      } else {
-        resetMint();
       }
       return isWhitelisted;
     }
@@ -108,11 +108,15 @@ const HomeContainer = () => {
 
   const presaleBuy = async (quantity: number) => {
     if (await checkWhitelisted()) {
-      const proof = whitelistManager.getProof(user);
-      const transaction = await contract
-        .connect(signer)
-        ?.presaleBuy(proof, user, quantity);
-      return { tx: transaction, error: false };
+      const proof = whitelistManager?.getProof(user);
+      try {
+        const transaction = await contract
+          .connect(signer)
+          ?.presaleBuy(proof, user, quantity);
+        return { tx: transaction, error: false };
+      } catch (error) {
+        console.log({ error });
+      }
     } else {
       return { tx: {}, error: true };
     }
@@ -144,14 +148,23 @@ const HomeContainer = () => {
     if (user) {
       setConnected(true);
     }
-    if (user && details.presale) {
-      checkWhitelisted();
+
+    if (user && polledDetails.presale) {
+      checkWhitelisted().then((isWhitelisted) => {
+        if (isWhitelisted) {
+          resetMint();
+        }
+      });
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && contract && details.presale) {
-      checkWhitelisted();
+    if (user && contract && polledDetails.presale) {
+      checkWhitelisted().then((isWhitelisted) => {
+        if (isWhitelisted) {
+          resetMint();
+        }
+      });
     }
   }, [user, contract]);
 
@@ -162,10 +175,40 @@ const HomeContainer = () => {
   }, [details]);
 
   useEffect(() => {
+    const updateSaleState = async () => {
+      const { maxPurchase, maxTokens } = details;
+      const { presale } = polledDetails;
+      const detailsObj = details;
+      if (presale) {
+        const presaleMaxHolding = await contract.callStatic.presaleMaxHolding();
+        detailsObj.maxPurchase =
+          presaleMaxHolding < maxPurchase ? presaleMaxHolding : maxPurchase;
+      }
+      const price = await contract.callStatic[
+        presale ? "presalePrice()" : "price()"
+      ]();
+      setPolledDetails({ ...polledDetails, price });
+      setMintText(
+        presale
+          ? BUTTON_TEXT.MINT_PRESALE
+          : `${BUTTON_TEXT.MINT_SALE} ${ethers.utils.formatUnits(price)} ETH`
+      );
+    };
+    if (contract) {
+      checkWhitelisted();
+      updateSaleState();
+    }
+  }, [polledDetails.presale]);
+
+  useEffect(() => {
     if (contract) {
       const getPolledDetails = async () => {
         try {
           const tokenCounter = await contract.callStatic.totalSupply();
+          const isPresaleActive = await contract.callStatic.isPresaleActive();
+          const isSaleActive = await contract.callStatic.isSaleActive();
+          const presale = isPresaleActive && !isSaleActive;
+          setPolledDetails({ ...polledDetails, presale });
           setTokenCount(tokenCounter);
           if (tokenCounter === details?.maxTokens) {
             setButtonText(BUTTON_TEXT.SOLD_OUT);
@@ -189,8 +232,6 @@ const HomeContainer = () => {
             ...details,
             maxTokens,
             maxPurchase,
-            price: null,
-            presale,
           };
           if (presale) {
             detailsObj.maxPurchase =
@@ -206,7 +247,8 @@ const HomeContainer = () => {
                   price
                 )} ETH`
           );
-          setDetails({ ...detailsObj, price });
+          setDetails({ ...detailsObj });
+          setPolledDetails({ ...polledDetails, price, presale });
         } catch (err) {
           console.log({ err });
         }
@@ -217,7 +259,7 @@ const HomeContainer = () => {
         getPolledDetails();
         setInterval(() => {
           getPolledDetails();
-        }, 10000);
+        }, 5000);
       }
     }
   }, [contract, provider]);
@@ -229,8 +271,7 @@ const HomeContainer = () => {
     setDisabledMintInput(true);
     try {
       let transaction;
-
-      if (details.presale) {
+      if (polledDetails?.presale) {
         const { tx, error } = await presaleBuy(parseInt(noOfTokens));
         if (error) {
           toast(`Whoops! Looks like you are not whitelisted.`);
@@ -244,7 +285,7 @@ const HomeContainer = () => {
         transaction = await contract
           ?.connect(signer)
           ?.buy(user, parseInt(noOfTokens), {
-            value: BigNumber.from(noOfTokens).mul(details.price),
+            value: BigNumber.from(noOfTokens).mul(polledDetails.price),
           });
         setButtonText(BUTTON_TEXT.MINTING);
       }
