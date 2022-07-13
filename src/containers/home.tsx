@@ -357,21 +357,25 @@ const HomeContainer = () => {
       <div className="navbar">
         <div>
           <a href="https://blockapelads.com" rel="noreferrer">
-            <Image src="/logo.svg" alt="logo" width={328} height={50} />
+            <div className="logo-cont">
+              <Image src="/logo.svg" alt="logo" layout="fill" />
+            </div>
           </a>
         </div>
         <div className="flex-row icon-box">
-          <a href={getEtherscanUrl()} rel="noreferrer" target="_blank">
-            <img
-              src="/etherscan.svg"
-              alt="etherscan"
-              style={{ height: "48px", width: "48px" }}
-            />
+          <a
+            href={getEtherscanUrl()}
+            rel="noreferrer"
+            target="_blank"
+            className="icon"
+          >
+            <img src="/etherscan.svg" alt="etherscan" />
           </a>
           <a
             href="https://twitter.com/Blockapelads"
             target="_blank"
             rel="noreferrer"
+            className="icon"
           >
             <TwitterFill color="#fff" size={48} />
           </a>
@@ -379,19 +383,22 @@ const HomeContainer = () => {
             href="https://discord.gg/j7FYsDqkr3"
             target="_blank"
             rel="noreferrer"
+            className="icon"
           >
             <DiscordFill color="#fff" size="48" />
           </a>
         </div>
       </div>
       <div className="hero">
-        <Image
-          alt="hero gif"
-          src="/blockapelads.gif"
-          height={300}
-          width={300}
-          className="hero-gif"
-        />
+        <div className="hero-gif-container">
+          <Image
+            alt="hero gif"
+            src="/blockapelads.gif"
+            layout="fill"
+            className="hero-gif"
+            quality="10"
+          />
+        </div>
         <h1 id="hero-text">Block Ape Lads</h1>
         {connected ? (
           <h3 id="counter">{`Tokens Claimed: ${
