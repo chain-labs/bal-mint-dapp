@@ -25,6 +25,7 @@ const BUTTON_TEXT = {
   MINTING: "Minting...",
   SOLD_OUT: "Sold Out",
   PRESALE_NOT_ALLOWED: "Not Allowed to Buy",
+  NO_SALE: "Coming Soon, Stay Tuned",
 };
 
 const HomeContainer = () => {
@@ -32,6 +33,7 @@ const HomeContainer = () => {
   const [loaded, setLoaded] = useState(false);
   const [user, provider, signer, connectWallet] = useWallet();
   const [noOfTokens, setNoOfTokens] = useState<string>("");
+  const [noSale, setNoSale] = useState(false);
   const [disabledMintButton, setDisabledMintButton] = useState(true);
   const [disabledMintInput, setDisabledMintInput] = useState(false);
   const [buttonText, setButtonText] = useState("Mint for 0 ETH");
@@ -96,7 +98,11 @@ const HomeContainer = () => {
       mintText.includes(BUTTON_TEXT.MINT_PRESALE) ||
       mintText.includes(BUTTON_TEXT.MINT_SALE)
     ) {
-      setButtonText(mintText);
+      if (!noSale) {
+        setButtonText(mintText);
+      } else {
+        setButtonText(BUTTON_TEXT.NO_SALE);
+      }
     }
   }, [mintText]);
 
@@ -201,6 +207,12 @@ const HomeContainer = () => {
   }, [polledDetails.presale]);
 
   useEffect(() => {
+    if (noSale) {
+      setButtonText(BUTTON_TEXT.NO_SALE);
+    }
+  }, [noSale]);
+
+  useEffect(() => {
     if (contract) {
       const getPolledDetails = async () => {
         try {
@@ -208,6 +220,7 @@ const HomeContainer = () => {
           const isPresaleActive = await contract.callStatic.isPresaleActive();
           const isSaleActive = await contract.callStatic.isSaleActive();
           const presale = isPresaleActive && !isSaleActive;
+          setNoSale(!isSaleActive && !isPresaleActive);
           setPolledDetails({ ...polledDetails, presale });
           setTokenCount(tokenCounter);
           if (tokenCounter === details?.maxTokens) {
@@ -282,10 +295,11 @@ const HomeContainer = () => {
           setButtonText(BUTTON_TEXT.MINTING);
         }
       } else {
+        const price = await contract.callStatic.price();
         transaction = await contract
           ?.connect(signer)
           ?.buy(user, parseInt(noOfTokens), {
-            value: BigNumber.from(noOfTokens).mul(polledDetails.price),
+            value: BigNumber.from(noOfTokens).mul(price),
           });
         setButtonText(BUTTON_TEXT.MINTING);
       }
@@ -368,7 +382,7 @@ const HomeContainer = () => {
           <div className="mint-container">
             {
               // @ts-ignore
-              parseInt(tokenCount) < details?.maxTokens && loaded ? (
+              parseInt(tokenCount) < details?.maxTokens && loaded && !noSale ? (
                 <input
                   className="mint-input"
                   type="number"
@@ -390,6 +404,9 @@ const HomeContainer = () => {
                 className="mint-btn"
                 onClick={mintHandler}
                 disabled={disabledMintButton}
+                style={
+                  noSale ? { paddingLeft: "24px", paddingRight: "24px" } : null
+                }
               >
                 {buttonText}
               </button>
