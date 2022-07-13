@@ -348,6 +348,8 @@ const HomeContainer = () => {
       resetMint();
       if (err.message.includes("PR:012")) {
         toast(`You cannot own more than ${details.maxPurchase} tokens`);
+      } else if (err.message.includes("insufficient funds")) {
+        toast(`You do not have enough funds to purchase this token`);
       } else toast(`❌ Something went wrong! Please Try Again`);
     }
   };
