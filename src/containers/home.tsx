@@ -403,7 +403,7 @@ const HomeContainer = () => {
         {connected ? (
           <h3 id="counter">{`Tokens Claimed: ${
             tokenCount >= 0 && details?.maxTokens
-              ? `${tokenCount}/${details.maxTokens}`
+              ? polledDetails?.presale ? `${tokenCount}/2000` : `${tokenCount}/${details.maxTokens}`
               : "Counting..."
           }`}</h3>
         ) : null}
