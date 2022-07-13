@@ -99,12 +99,25 @@ const HomeContainer = () => {
       mintText.includes(BUTTON_TEXT.MINT_SALE)
     ) {
       if (!noSale) {
-        setButtonText(mintText);
+        if (
+          buttonText !== BUTTON_TEXT.TRANSACTION &&
+          buttonText !== BUTTON_TEXT.MINTING
+        ) {
+          setButtonText(mintText);
+        }
       } else {
-        setButtonText(BUTTON_TEXT.NO_SALE);
+        if (tokenCount.toString() === details.maxTokens.toString()) {
+          setButtonText(BUTTON_TEXT.SOLD_OUT);
+        } else setButtonText(BUTTON_TEXT.NO_SALE);
       }
     }
-  }, [mintText]);
+  }, [mintText, tokenCount, details.maxTokens, noSale]);
+
+  useEffect(() => {
+    if (tokenCount.toString() === details.maxTokens.toString()) {
+      setButtonText(BUTTON_TEXT.SOLD_OUT);
+    }
+  }, [tokenCount, details.maxTokens]);
 
   const resetMint = () => {
     setButtonText(mintText);
@@ -208,11 +221,15 @@ const HomeContainer = () => {
 
   useEffect(() => {
     if (noSale) {
-      setButtonText(BUTTON_TEXT.NO_SALE);
+      if (tokenCount.toString() === details.maxTokens.toString()) {
+        setButtonText(BUTTON_TEXT.SOLD_OUT);
+      } else setButtonText(BUTTON_TEXT.NO_SALE);
     }
-  }, [noSale]);
+  }, [noSale, details.maxTokens, tokenCount]);
 
   useEffect(() => {
+    let interval;
+
     if (contract) {
       const getPolledDetails = async () => {
         try {
@@ -267,15 +284,25 @@ const HomeContainer = () => {
         }
       };
 
-      if (provider?.connection?.url === "metamask") {
+      if (provider?.connection?.url === "metamask" && !noSale) {
         getDetails();
         getPolledDetails();
-        setInterval(() => {
+        interval = setInterval(() => {
           getPolledDetails();
         }, 5000);
+      } else if (noSale) {
+        getDetails();
+        getPolledDetails();
+        interval = setInterval(() => {
+          getPolledDetails();
+        }, 1000);
       }
     }
-  }, [contract, provider]);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [contract, provider, noSale]);
 
   const mintHandler = async (e: any) => {
     e.preventDefault();
