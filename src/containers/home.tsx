@@ -101,7 +101,8 @@ const HomeContainer = () => {
       if (!noSale) {
         if (
           buttonText !== BUTTON_TEXT.TRANSACTION &&
-          buttonText !== BUTTON_TEXT.MINTING
+          buttonText !== BUTTON_TEXT.MINTING &&
+          buttonText !== BUTTON_TEXT.PRESALE_NOT_ALLOWED
         ) {
           setButtonText(mintText);
         }
