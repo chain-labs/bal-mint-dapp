@@ -101,10 +101,18 @@ const HomeContainer = () => {
       if (!noSale) {
         setButtonText(mintText);
       } else {
-        setButtonText(BUTTON_TEXT.NO_SALE);
+        if (tokenCount.toString() === details.maxTokens.toString()) {
+          setButtonText(BUTTON_TEXT.SOLD_OUT);
+        } else setButtonText(BUTTON_TEXT.NO_SALE);
       }
     }
-  }, [mintText]);
+  }, [mintText, tokenCount, details.maxTokens, noSale]);
+
+  useEffect(() => {
+    if (tokenCount.toString() === details.maxTokens.toString()) {
+      setButtonText(BUTTON_TEXT.SOLD_OUT);
+    }
+  }, [tokenCount, details.maxTokens]);
 
   const resetMint = () => {
     setButtonText(mintText);
@@ -208,9 +216,11 @@ const HomeContainer = () => {
 
   useEffect(() => {
     if (noSale) {
-      setButtonText(BUTTON_TEXT.NO_SALE);
+      if (tokenCount.toString() === details.maxTokens.toString()) {
+        setButtonText(BUTTON_TEXT.SOLD_OUT);
+      } else setButtonText(BUTTON_TEXT.NO_SALE);
     }
-  }, [noSale]);
+  }, [noSale, details.maxTokens, tokenCount]);
 
   useEffect(() => {
     if (contract) {
