@@ -16,6 +16,9 @@ $primary: #15db95;
     position: absolute;
     bottom: 64px;
     right: 80px;
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
   }
 }
 
@@ -24,6 +27,16 @@ $primary: #15db95;
   margin: auto;
   display: flex;
   justify-content: space-between;
+
+  .logo-cont {
+    position: relative;
+    width: 328px;
+    height: 50px;
+    @media screen and (max-width: 768px) {
+      height: 24px;
+      width: 50vw;
+    }
+  }
 }
 
 .flex-row {
@@ -37,8 +50,26 @@ $primary: #15db95;
 }
 
 .icon-box {
-  width: 180px;
-  justify-content: space-between;
+  width: 250px;
+  justify-content: space-evenly;
+    @media screen and (max-width: 768px) {
+      width: 150px;
+    }
+
+  .icon {
+    svg {
+      @media screen and (max-width: 768px) {
+        height: 24px;
+      }
+    }
+    img {
+      height: 48px;
+      padding: 0 12px;
+      @media screen and (max-width: 768px) {
+        height: 24px;
+      }
+    }
+  }
 }
 
 .hero {
@@ -56,17 +87,31 @@ $primary: #15db95;
     text-align: center;
     z-index: 2;
     margin: 24px 0 8px 0;
+    @media screen and (max-width: 768px) {
+      font-size: 36px;
+    }
   }
 
   #counter {
     color: #EB48EB;
     margin: 0 0 24px 0;
+  }
 
-}
 
-  .hero-gif {
-    border-radius: 50%;
-    z-index: 2;
+  .hero-gif-container {
+    position: relative;
+    height: 300px;
+    width: 300px;
+
+    @media screen and (max-width: 768px) {
+      height: 200px;
+      width: 200px;
+
+    }
+    .hero-gif {
+      border-radius: 50%;
+      z-index: 2;
+    }
   }
 }
 
@@ -88,6 +133,9 @@ $primary: #15db95;
     border: none;
     border-radius: 24px;
     cursor: pointer;
+    @media screen and (max-width: 768px) {
+      font-size: 18px;
+    }
   }
 
   .connect-btn {
@@ -110,6 +158,10 @@ $primary: #15db95;
     text-align: center;
     margin-bottom: 24px;
     width: 356px;
+
+    @media screen and (max-width: 768px) {
+      width: 85vw;
+    }
     
     
     &::placeholder {
@@ -138,6 +190,10 @@ $primary: #15db95;
     margin: 0;
     text-align: center;
     z-index: 3;
+    @media screen and (max-width: 768px) {
+margin-bottom: 56px;
+    }
+
 
     span {
       color: $primary;
