@@ -46,7 +46,7 @@ const HomeContainer = () => {
   const [tokenCount, setTokenCount] = useState<number>();
 
   const resetMint = () => {
-    setButtonText(BUTTON_TEXT.MINT_PRESALE);
+    setButtonText(BUTTON_TEXT.MINT);
     setDisabledMintInput(false);
     setNoOfTokens("");
   };
@@ -99,7 +99,7 @@ const HomeContainer = () => {
       setDisabledMintButton(true);
       setButtonText(BUTTON_TEXT.MINT);
     }
-  }, [noOfTokens]);
+  }, [noOfTokens, maxPurchase]);
 
   const mintHandler = async (e) => {
     e.preventDefault();
