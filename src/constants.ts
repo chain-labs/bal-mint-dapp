@@ -24,3 +24,5 @@ export const getEtherscanUrl = () => {
     return `https://etherscan.io/address/${CONTRACT_ADDRESS}`;
   }
 };
+
+export const MAX_TOKENS = `${process.env.NEXT_PUBLIC_MAX_TOKENS}`;

@@ -2,23 +2,19 @@
 import { TwitterFill } from "akar-icons";
 import { BigNumber, ethers } from "ethers";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS, getEtherscanUrl } from "../constants";
-import useContract from "../hooks/useContract";
-import useWallet from "../hooks/useWallet";
-import EtherscanIcon from "../../public/etherscan.svg";
-
-import axios from "axios";
-import WhitelistManagement from "../WhitelistManager";
+import DiscordFill from "../../components/svgs/discord";
+import { CONTRACT_ADDRESS, getEtherscanUrl, MAX_TOKENS } from "../../constants";
+import useContract from "../../hooks/useContract";
+import useWallet from "../../hooks/useWallet";
 
 const condense = (text: string) => {
   return `${text?.substring(0, 5)}...${text?.substring(text.length - 5)}`;
 };
 
 const BUTTON_TEXT = {
-  MINT_PRESALE: "Mint for Free",
+  MINT: "Mint for Free",
   MINT_SALE: "Mint for ",
   EXCEEDS: "Token exceeds limit",
   TRANSACTION: "Confirm Transaction",
@@ -40,36 +36,42 @@ const HomeContainer = () => {
 
   const [contract] = useContract(CONTRACT_ADDRESS, provider);
 
+  const [maxPurchase, setMaxPurchase] = useState<number>();
+  // const [tokens, setTokens] = useState({
+  //   totalLimit: null,
+  //   usedLimit: null,
+  //   totalSupply: null,
+  // });
+
+  const [tokenCount, setTokenCount] = useState<number>();
+
   const resetMint = () => {
     setButtonText(BUTTON_TEXT.MINT_PRESALE);
     setDisabledMintInput(false);
     setNoOfTokens("");
   };
 
-  //   useEffect(() => {
-  //     if (noOfTokens) {
-  //       const tokensCount = parseInt(noOfTokens);
+  useEffect(() => {
+    const getDetails = async () => {
+      const totalSupply = parseInt(await contract.callStatic.totalSupply());
+      const usedLimit = parseInt(await contract.callStatic.usedLimit());
+      const totalLimit = parseInt(await contract.callStatic.totalLimit());
 
-  //       if (tokensCount > 0) {
-  //         if (tokensCount <= details?.maxPurchase) {
-  //           setDisabledMintButton(false);
+      const tokenCount = totalSupply - totalLimit + usedLimit;
+      setTokenCount(tokenCount);
+    };
 
-  //           setButtonText(BUTTON_TEXT.MINT_PRESALE);
-  //         } else {
-  //           setDisabledMintButton(true);
-  //           setButtonText(BUTTON_TEXT.EXCEEDS);
-  //         }
-  //       } else {
-  //         setDisabledMintButton(true);
+    if (contract && provider) {
+      contract.callStatic.MAX_PURCHASE_LIMIT().then((maxPurchase) => {
+        setMaxPurchase(maxPurchase);
+      });
+      getDetails();
 
-  //         setButtonText(BUTTON_TEXT.MINT_PRESALE);
-  //       }
-  //     } else {
-  //       setDisabledMintButton(true);
-
-  //       setButtonText(BUTTON_TEXT.MINT_PRESALE);
-  //     }
-  //   }, [noOfTokens]);
+      setInterval(() => {
+        getDetails();
+      }, 5000);
+    }
+  }, [contract, provider]);
 
   useEffect(() => {
     if (user) {
@@ -77,54 +79,61 @@ const HomeContainer = () => {
     }
   }, [user]);
 
-  //   const mintHandler = async (e: any) => {
-  //     e.preventDefault();
-  //     setButtonText(BUTTON_TEXT.TRANSACTION);
-  //     setDisabledMintButton(true);
-  //     setDisabledMintInput(true);
-  //     try {
-  //       let transaction;
-  //       if (polledDetails?.presale) {
-  //         const { tx, error } = await presaleBuy(parseInt(noOfTokens));
-  //         if (error) {
-  //           toast(`Whoops! Looks like you are not whitelisted.`);
-  //           resetMint();
-  //           return;
-  //         } else {
-  //           transaction = tx;
-  //           setButtonText(BUTTON_TEXT.MINTING);
-  //         }
-  //       } else {
-  //         const price = await contract.callStatic.price();
-  //         transaction = await contract
-  //           ?.connect(signer)
-  //           ?.buy(user, parseInt(noOfTokens), {
-  //             value: BigNumber.from(noOfTokens).mul(price),
-  //           });
-  //         setButtonText(BUTTON_TEXT.MINTING);
-  //       }
-  //       const event = transaction
-  //         .wait()
-  //         .then((tx: any) => {
-  //           resetMint();
-  //           toast(
-  //             `🎉 Succesfully minted ${noOfTokens} Block Ape Lads!//${tx.transactionHash}`
-  //           );
-  //         })
-  //         .catch((err: any, tx: any) => {
-  //           resetMint();
-  //           toast(`❌ Something went wrong! Please Try Again`);
-  //         });
-  //     } catch (err) {
-  //       console.error(err);
-  //       resetMint();
-  //       if (err.message.includes("PR:012")) {
-  //         toast(`You cannot own more than ${details.maxPurchase} tokens`);
-  //       } else if (err.message.includes("insufficient funds")) {
-  //         toast(`You do not have enough funds to purchase this token`);
-  //       } else toast(`❌ Something went wrong! Please Try Again`);
-  //     }
-  //   };
+  useEffect(() => {
+    if (noOfTokens) {
+      const tokensCount = parseInt(noOfTokens);
+
+      if (tokensCount > 0) {
+        if (tokensCount <= maxPurchase) {
+          setDisabledMintButton(false);
+          setButtonText(BUTTON_TEXT.MINT);
+        } else {
+          setDisabledMintButton(true);
+          setButtonText(BUTTON_TEXT.EXCEEDS);
+        }
+      } else {
+        setDisabledMintButton(true);
+        setButtonText(BUTTON_TEXT.MINT);
+      }
+    } else {
+      setDisabledMintButton(true);
+      setButtonText(BUTTON_TEXT.MINT);
+    }
+  }, [noOfTokens]);
+
+  const mintHandler = async (e) => {
+    e.preventDefault();
+    setButtonText(BUTTON_TEXT.TRANSACTION);
+    setDisabledMintButton(true);
+    setDisabledMintInput(true);
+    try {
+      const transaction = await contract
+        ?.connect(signer)
+        ?.buy(user, parseInt(noOfTokens));
+      setButtonText(BUTTON_TEXT.MINTING);
+      const event = transaction
+        .wait()
+        .then((tx: any) => {
+          setTokenCount(tokenCount + parseInt(noOfTokens));
+          resetMint();
+          toast(
+            `🎉 Succesfully minted ${noOfTokens} Block Ape Lads!//${tx.transactionHash}`
+          );
+        })
+        .catch((err: any, tx: any) => {
+          resetMint();
+          toast(`❌ Something went wrong! Please Try Again`);
+        });
+    } catch (err) {
+      console.log({ err });
+      if (err.message.includes("out of buying limit")) {
+        toast(`❌ You have exceeded your buying limit`);
+      } else {
+        toast(`❌ Something went wrong! Please Try Again`);
+      }
+      resetMint();
+    }
+  };
 
   return (
     <div className="container">
@@ -171,11 +180,14 @@ const HomeContainer = () => {
             layout="fill"
             className="hero-gif"
             quality="10"
+            priority
           />
         </div>
         <h1 id="hero-text">Block Ape Lads</h1>
         {connected ? (
-          <h3 id="counter">{`Tokens Claimed: Counting...`}</h3>
+          <h3 id="counter">{`Tokens Claimed: ${
+            tokenCount ? `${tokenCount}/${MAX_TOKENS}` : "Counting..."
+          }`}</h3>
         ) : null}
       </div>
       <div className="mint-section">
@@ -185,9 +197,8 @@ const HomeContainer = () => {
           </button>
         ) : (
           <div className="mint-container">
-            {
-              // @ts-ignore
-              parseInt(tokenCount) < details?.maxTokens && loaded && !noSale ? (
+            {maxPurchase ? (
+              <React.Fragment>
                 <input
                   className="mint-input"
                   type="number"
@@ -195,26 +206,28 @@ const HomeContainer = () => {
                     // @ts-ignore
                     e.target?.blur();
                   }}
-                  placeholder={`Number of Tokens. (Max ${details?.maxPurchase})`}
+                  placeholder={`Number of Tokens. ${
+                    maxPurchase ? `(Max. ${maxPurchase})` : ""
+                  }`}
                   value={noOfTokens}
                   onChange={(e) => setNoOfTokens(e.target.value)}
                   min={0}
-                  max={details?.maxPurchase}
+                  max={10}
                   disabled={disabledMintInput}
                 />
-              ) : null
-            }
-            {loaded ? (
-              <button
-                className="mint-btn"
-                onClick={mintHandler}
-                disabled={disabledMintButton}
-                style={
-                  noSale ? { paddingLeft: "24px", paddingRight: "24px" } : null
-                }
-              >
-                {buttonText}
-              </button>
+                <button
+                  className="mint-btn"
+                  onClick={mintHandler}
+                  disabled={disabledMintButton}
+                  style={
+                    noSale
+                      ? { paddingLeft: "24px", paddingRight: "24px" }
+                      : null
+                  }
+                >
+                  {buttonText}
+                </button>
+              </React.Fragment>
             ) : null}
             <h3 className="user-address">
               Connected to: <span>{condense(user)}</span>
