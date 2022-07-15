@@ -2,6 +2,7 @@
 
 const path = require("path");
 const nextConfig = {
+  images: { domains: ["ik.imagekit.io"]},
   sassOptions: {
     includePaths: [path.join(__dirname, "styles")],
   },

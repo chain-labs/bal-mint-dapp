@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 import { TwitterFill } from "akar-icons";
 import { BigNumber, ethers } from "ethers";
@@ -394,18 +395,20 @@ const HomeContainer = () => {
       <div className="hero">
         <div className="hero-gif-container">
           <Image
-            alt="hero gif"
-            src="/blockapelads.gif"
+            alt="hero g-smif"
+            src="https://ik.imagekit.io/chainlabs/Block_Ape_Lads/blockapelads_jC0a_js-i.gif?ik-sdk-version=javascript-1.4.3&updatedAt=1657777650473"
             layout="fill"
             className="hero-gif"
-            quality="10"
+            quality="1"
           />
         </div>
         <h1 id="hero-text">Block Ape Lads</h1>
         {connected ? (
           <h3 id="counter">{`Tokens Claimed: ${
             tokenCount >= 0 && details?.maxTokens
-              ? polledDetails?.presale ? `${tokenCount}/2000` : `${tokenCount}/${details.maxTokens}`
+              ? polledDetails?.presale
+                ? `${tokenCount}/2000`
+                : `${tokenCount}/${details.maxTokens}`
               : "Counting..."
           }`}</h3>
         ) : null}
