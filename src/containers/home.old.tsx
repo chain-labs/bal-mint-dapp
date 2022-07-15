@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 import { TwitterFill } from "akar-icons";
 import { BigNumber, ethers } from "ethers";
