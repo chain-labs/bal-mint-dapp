@@ -8,16 +8,7 @@ const Toaster = () => {
     <div
       onMouseEnter={startPause}
       onMouseLeave={endPause}
-      style={{
-        background: "white",
-        position: "fixed",
-        margin: "40px 0 0 0",
-        left: "50%",
-        maxWidth: "100vw",
-        transform: "translateX(-50%)",
-        fontSize: "24px",
-        zIndex: "20",
-      }}
+      className="toast-container"
     >
       {toasts
         .filter((toast) => toast.visible)
@@ -44,8 +35,8 @@ const Toaster = () => {
               }}
             >
               <h6
+                className="toast-text"
                 style={{
-                  fontSize: "24px",
                   margin: "0",
                   fontWeight: 700,
                   display: "inline",
@@ -60,11 +51,11 @@ const Toaster = () => {
                   rel="noreferrer"
                 >
                   <h3
+                    className="toast-text"
                     style={{
                       margin: 0,
                       display: "inline",
                       color: "#15DB95",
-                      fontSize: "24px",
                       fontWeight: 700,
                       width: "500px",
                     }}

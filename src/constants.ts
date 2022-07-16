@@ -24,3 +24,5 @@ export const getEtherscanUrl = () => {
     return `https://etherscan.io/address/${CONTRACT_ADDRESS}`;
   }
 };
+
+export const SALE_PAUSED = process.env.NEXT_PUBLIC_SALE_PAUSED;
