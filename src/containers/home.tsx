@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS, getEtherscanUrl } from "../constants";
+import { CONTRACT_ADDRESS, getEtherscanUrl, SALE_PAUSED } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
 import EtherscanIcon from "../../public/etherscan.svg";
@@ -405,15 +405,24 @@ const HomeContainer = () => {
         {connected ? (
           <h3 id="counter">{`Tokens Claimed: ${
             tokenCount >= 0 && details?.maxTokens
-              ? polledDetails?.presale ? `${tokenCount}/2000` : `${tokenCount}/${details.maxTokens}`
+              ? polledDetails?.presale
+                ? `${tokenCount}/2000`
+                : `${tokenCount}/${details.maxTokens}`
               : "Counting..."
           }`}</h3>
         ) : null}
       </div>
       <div className="mint-section">
         {!connected ? (
-          <button className="connect-btn" onClick={() => connectWallet()}>
-            Connect Wallet
+          <button
+            className="connect-btn"
+            onClick={() => {
+              if (!SALE_PAUSED) connectWallet();
+            }}
+          >
+            {SALE_PAUSED
+              ? "Free Mint Coming Soon!"
+              : "Connect Wallet"}
           </button>
         ) : (
           <div className="mint-container">
