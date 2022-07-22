@@ -34,6 +34,8 @@ const HomeContainer = () => {
   const [disabledMintInput, setDisabledMintInput] = useState(false);
   const [buttonText, setButtonText] = useState("Mint for Free");
 
+  const [newSupply, setNewSupply] = useState<number>();
+
   const [contract] = useContract(CONTRACT_ADDRESS, provider);
 
   const [maxPurchase, setMaxPurchase] = useState<number>();
@@ -54,10 +56,13 @@ const HomeContainer = () => {
   useEffect(() => {
     const getDetails = async () => {
       const totalSupply = parseInt(await contract.callStatic.totalSupply());
-      const usedLimit = parseInt(await contract.callStatic.usedLimit());
-      const totalLimit = parseInt(await contract.callStatic.totalLimit());
+      // const usedLimit = parseInt(await contract.callStatic.usedLimit());
+      // const totalLimit = parseInt(await contract.callStatic.totalLimit());
 
-      const tokenCount = totalSupply - totalLimit + usedLimit;
+      const newTotalSupply = parseInt(await contract.callStatic.NEW_SUPPLY());
+      setNewSupply(newTotalSupply);
+
+      const tokenCount = totalSupply;
       setTokenCount(tokenCount);
     };
 
@@ -109,7 +114,7 @@ const HomeContainer = () => {
     try {
       const transaction = await contract
         ?.connect(signer)
-        ?.buy(user, parseInt(noOfTokens));
+        ?.buy([], user, parseInt(noOfTokens));
       setButtonText(BUTTON_TEXT.MINTING);
       const event = transaction
         .wait()
@@ -186,7 +191,7 @@ const HomeContainer = () => {
         <h1 id="hero-text">Block Ape Lads</h1>
         {connected ? (
           <h3 id="counter">{`Tokens Claimed: ${
-            tokenCount ? `${tokenCount}/${MAX_TOKENS}` : "Counting..."
+            tokenCount ? `${tokenCount}/${newSupply}` : "Counting..."
           }`}</h3>
         ) : null}
       </div>
@@ -197,7 +202,24 @@ const HomeContainer = () => {
           </button>
         ) : (
           <div className="mint-container">
-            {maxPurchase ? (
+            {tokenCount === newSupply ? (
+              <a
+                href="https://opensea.io/collection/block-ape-lads-genesis"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <button
+                  className="mint-btn"
+                  style={
+                    noSale
+                      ? { paddingLeft: "24px", paddingRight: "24px" }
+                      : null
+                  }
+                >
+                  Buy on OpenSea
+                </button>
+              </a>
+            ) : maxPurchase ? (
               <React.Fragment>
                 <input
                   className="mint-input"
