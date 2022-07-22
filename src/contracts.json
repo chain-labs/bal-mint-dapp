@@ -5,28 +5,18 @@
       "chainId": "4",
       "contracts": {
         "BALMigration": {
-          "address": "0x7b957077EA5597e6aEd914d18766fA8D43A6Fb49",
+          "address": "0xCdE151effC2a49ab552661c40c50Cba22eEC37b9",
           "abi": [
             {
               "inputs": [
                 {
-                  "internalType": "address",
-                  "name": "_vault",
-                  "type": "address"
-                },
-                {
-                  "internalType": "contract ERC721A",
+                  "internalType": "contract CollectionA",
                   "name": "_bal",
                   "type": "address"
                 },
                 {
                   "internalType": "uint256",
-                  "name": "_totalLimit",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "_nextTokenId",
+                  "name": "_newSupply",
                   "type": "uint256"
                 }
               ],
@@ -106,10 +96,23 @@
             },
             {
               "inputs": [],
+              "name": "NEW_SUPPLY",
+              "outputs": [
+                {
+                  "internalType": "uint256",
+                  "name": "",
+                  "type": "uint256"
+                }
+              ],
+              "stateMutability": "view",
+              "type": "function"
+            },
+            {
+              "inputs": [],
               "name": "bal",
               "outputs": [
                 {
-                  "internalType": "contract ERC721A",
+                  "internalType": "contract CollectionA",
                   "name": "",
                   "type": "address"
                 }
@@ -119,6 +122,11 @@
             },
             {
               "inputs": [
+                {
+                  "internalType": "bytes32[]",
+                  "name": "_proofs",
+                  "type": "bytes32[]"
+                },
                 {
                   "internalType": "address",
                   "name": "_buyer",
@@ -132,33 +140,7 @@
               ],
               "name": "buy",
               "outputs": [],
-              "stateMutability": "payable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "_increaseBy",
-                  "type": "uint256"
-                }
-              ],
-              "name": "increaseTotalLimit",
-              "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "nextTokenId",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
@@ -170,7 +152,7 @@
                 },
                 {
                   "internalType": "address",
-                  "name": "",
+                  "name": "from",
                   "type": "address"
                 },
                 {
@@ -192,7 +174,7 @@
                   "type": "bytes4"
                 }
               ],
-              "stateMutability": "pure",
+              "stateMutability": "nonpayable",
               "type": "function"
             },
             {
@@ -238,7 +220,7 @@
             {
               "inputs": [
                 {
-                  "internalType": "contract ERC721A",
+                  "internalType": "contract CollectionA",
                   "name": "_bal",
                   "type": "address"
                 }
@@ -251,32 +233,12 @@
             {
               "inputs": [
                 {
-                  "internalType": "uint256",
-                  "name": "_nextTokenId",
-                  "type": "uint256"
-                }
-              ],
-              "name": "setNextTokenId",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [
-                {
                   "internalType": "address",
-                  "name": "_vault",
+                  "name": "",
                   "type": "address"
                 }
               ],
-              "name": "setVaultAddress",
-              "outputs": [],
-              "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "totalLimit",
+              "name": "tokensMintedByUser",
               "outputs": [
                 {
                   "internalType": "uint256",
@@ -318,32 +280,6 @@
               "name": "unpause",
               "outputs": [],
               "stateMutability": "nonpayable",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "usedLimit",
-              "outputs": [
-                {
-                  "internalType": "uint256",
-                  "name": "",
-                  "type": "uint256"
-                }
-              ],
-              "stateMutability": "view",
-              "type": "function"
-            },
-            {
-              "inputs": [],
-              "name": "vault",
-              "outputs": [
-                {
-                  "internalType": "address",
-                  "name": "",
-                  "type": "address"
-                }
-              ],
-              "stateMutability": "view",
               "type": "function"
             },
             {
