@@ -209,7 +209,7 @@ const HomeContainer = () => {
           </button>
         ) : (
           <div className="mint-container">
-            {tokenCount === newSupply ? (
+            {tokenCount === newSupply && tokenCount!== undefined ? (
               <a
                 href="https://opensea.io/collection/block-ape-lads-genesis"
                 target="_blank"
