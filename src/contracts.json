@@ -5,7 +5,7 @@
       "chainId": "4",
       "contracts": {
         "BALMigration": {
-          "address": "0xCdE151effC2a49ab552661c40c50Cba22eEC37b9",
+          "address": "0xa35f1bEb0fc030d492178F98681f2a5e1Bc5DAc4",
           "abi": [
             {
               "inputs": [

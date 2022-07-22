@@ -5,7 +5,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../../components/svgs/discord";
-import { CONTRACT_ADDRESS, getEtherscanUrl, MAX_TOKENS } from "../../constants";
+import { CONTRACT_ADDRESS, getEtherscanUrl, MAX_TOKENS, SALE_PAUSED } from "../../constants";
 import useContract from "../../hooks/useContract";
 import useWallet from "../../hooks/useWallet";
 
