@@ -25,4 +25,5 @@ export const getEtherscanUrl = () => {
   }
 };
 
-export const SALE_PAUSED = process.env.NEXT_PUBLIC_SALE_PAUSED;
+export const SALE_PAUSED = process.env.NEXT_PUBLIC_SALE_PAUSED === "true";
+export const MAX_TOKENS = `${process.env.NEXT_PUBLIC_MAX_TOKENS}`;

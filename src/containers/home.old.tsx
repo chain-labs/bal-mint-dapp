@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @next/next/no-img-element */
 import { TwitterFill } from "akar-icons";
 import { BigNumber, ethers } from "ethers";
@@ -5,7 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import DiscordFill from "../components/svgs/discord";
-import { CONTRACT_ADDRESS, getEtherscanUrl, SALE_PAUSED } from "../constants";
+import { CONTRACT_ADDRESS, getEtherscanUrl } from "../constants";
 import useContract from "../hooks/useContract";
 import useWallet from "../hooks/useWallet";
 import EtherscanIcon from "../../public/etherscan.svg";
@@ -394,11 +395,11 @@ const HomeContainer = () => {
       <div className="hero">
         <div className="hero-gif-container">
           <Image
-            alt="hero gif"
-            src="/blockapelads.gif"
+            alt="hero g-smif"
+            src="https://ik.imagekit.io/chainlabs/Block_Ape_Lads/blockapelads_jC0a_js-i.gif?ik-sdk-version=javascript-1.4.3&updatedAt=1657777650473"
             layout="fill"
             className="hero-gif"
-            quality="10"
+            quality="1"
           />
         </div>
         <h1 id="hero-text">Block Ape Lads</h1>
@@ -414,15 +415,8 @@ const HomeContainer = () => {
       </div>
       <div className="mint-section">
         {!connected ? (
-          <button
-            className="connect-btn"
-            onClick={() => {
-              if (!SALE_PAUSED) connectWallet();
-            }}
-          >
-            {SALE_PAUSED
-              ? "Free Mint Coming Soon!"
-              : "Connect Wallet"}
+          <button className="connect-btn" onClick={() => connectWallet()}>
+            Connect Wallet
           </button>
         ) : (
           <div className="mint-container">
