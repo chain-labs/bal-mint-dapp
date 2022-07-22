@@ -12,7 +12,7 @@ const useContract = (
   useEffect(() => {
     if (provider) {
       // @ts-ignore
-      const abi = contracts?.[CHAIN_ID]?.[NETWORK]?.contracts?.CollectionA?.abi;
+      const abi = contracts?.[CHAIN_ID]?.[0].contracts.BALMigration.abi;
       const contract = new ethers.Contract(address, abi, provider);
       setContract(contract);
     }
